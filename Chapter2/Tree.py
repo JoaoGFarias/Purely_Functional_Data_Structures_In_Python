@@ -1,4 +1,5 @@
 import abc
+import copy
 
 class Node:
     """Abstract data type for tree node"""
@@ -42,9 +43,9 @@ class Elem(Node):
 
     def insert(self,val):
         if self.val > val:
-            return Elem(self.left.insert(val),self.val,self.right) #The right branch is shared
+            return Elem(self.left.insert(val),copy.deepcopy(self.val),self.right) #The right branch is shared
         elif self.val < val:
-            return Elem(self.left,self.val,self.right.insert(val)) 
+            return Elem(self.left,copy.deepcopy(self.val),self.right.insert(val)) 
         else:
             return self
 
@@ -65,12 +66,19 @@ def listTree(): #A tree, but actually is a list starting with 1, the tree root, 
     return tree
 
 def test():
+    #Asserting tree properties
     tree = listTree()
     newTree = tree.insert(-1)
     assert newTree.left.val == -1
     assert newTree.member(5)
     assert not newTree.member(90)
-    assert not tree.member(-1) and newTree.member(-1) #The old tree a not modified    
+    assert not tree.member(-1) and newTree.member(-1) #The old tree a not modified
+
+    #Asserting persistence
+    tree = EmptyNode().insert([1]).insert([2]).insert([0])
+    newTree = tree.insert([50]) #Here, the insert function creates new nodes during the recursion
+    assert tree.val == newTree.val
+    assert not id(newTree.val) == id(tree.val)
     pass
 
 if __name__ == "__main__":
